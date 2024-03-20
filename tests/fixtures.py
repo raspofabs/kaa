@@ -13,3 +13,8 @@ def source_main():
     source = read_source(Path(Path(__file__).parent) / "test_data/main.cpp")
     return source
 
+@pytest.fixture
+def tree_simple(source_simple):
+    from kaa.spc import parse_source_to_tree
+    return parse_source_to_tree(source_simple)
+
