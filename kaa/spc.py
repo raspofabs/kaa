@@ -19,10 +19,56 @@ def is_function(tree_node):
 
 def get_functions(tree):
     root_node = tree.root_node
-    print(f"Root: {root_node.type}")
+    #print(f"Root: {root_node.type}")
     if root_node.type == "translation_unit":
         return [node for node in root_node.children if is_function(node)]
 
+
+def render_func(f_def, source):
+    source_as_text = source.decode("utf8")
+    lines = source_as_text.split("\n")
+    start_line = f_def.start_point[0]
+    end_line = f_def.end_point[0]
+    print("\n".join(lines[start_line:end_line+1]))
+
+
+def SPC(node):
+    if node.type == "function_definition":
+        return SPC(node.children[2])
+    statement_types = [
+            "if_statement",
+            "return_statement",
+            ]
+    if node.type in statement_types: # NPC({ S1 }) = NPC(S1)  // block statement
+        r, expression, semicolon = node.children
+        return SPC(expression)
+# NPC(if (E1) S1 else S2) = NPC(E1) + NPC(S1) + NPC(S2)  // if statement: in case of no else, NPC(S2) = 1
+# NPC(switch (C1) { case E1: S1; case E2: S2; ... case En; Sn; }) = SUM(i = 1..n | NPC(Si))  // switch statement
+# NPC(while (E1) S1) = 1 + NPC(E1) + NPC(S1)  // while statement
+# NPC(do S1 while (E1)) = 1 + NPC(E1) + NPC(S1)  // do-while statement
+# NPC(for(E1; E2; E3) S1) = 1 + NPC(E1) + NPC(E2) + NPC(E3) + NPC(S1)  // for statement
+
+    if node.type == "compound_statement": # NPC(S1; S2) = NPC(S1) * NPC(S2)  // sequential statements
+        total = 1
+        for child in node.children:
+            total *= SPC(child)
+        return total
+    # NPC(S1) = 1  // any other statement; not one of the above
+    return 1
+    return node.type
+
+def describe_node(node, indent):
+    print(f"{indent}{node.type}")
+    for child in node.children:
+        describe_node(child, indent + "> ")
+
+def describe_func(f_def, source):
+    source_as_text = source.decode("utf8")
+    lines = source_as_text.split("\n")
+    print(f"Function: {f_def}")
+    for child in f_def.children:
+        describe_node(child, " > ")
+    print(f"SPC: {SPC(f_def)}")
 
 import click
 
@@ -33,7 +79,9 @@ def run(source_path: Path):
     source = read_source(source_path)
     tree = parse_source_to_tree(source)
     root_node = tree.root_node
-    for node in root_node.children:
-        print(f"N: {node}")
+    #for node in root_node.children:
+        #print(f"N: {node}")
     functions = get_functions(tree)
-
+    for f in functions:
+        render_func(f, source)
+        describe_func(f, source)
