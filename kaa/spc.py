@@ -32,8 +32,6 @@ def render_func(f_def, source):
     print("\n".join(lines[start_line:end_line+1]))
 
 
-# NPC(do S1 while (E1)) = 1 + NPC(E1) + NPC(S1)  // do-while statement
-# NPC(for(E1; E2; E3) S1) = 1 + NPC(E1) + NPC(E2) + NPC(E3) + NPC(S1)  // for statement
 def SPC(node):
     if node.type == "translation_unit":
         raise ValueError("SPC only works on functions and methods.")
@@ -55,12 +53,22 @@ def SPC(node):
         s_while, condition_clause, compound_statement = node.children
         return SPC(condition_clause) + SPC( compound_statement )
 
+    # NPC(do S1 while (E1)) = 1 + NPC(E1) + NPC(S1)  // do-while statement
+    if node.type == "do_statement":
+        s_do, compound_statement, s_while, expression, semi = node.children
+        return 1 + SPC( compound_statement ) + SPC(expression)
+
     # NPC(switch (C1) { case E1: S1; case E2: S2; ... case En; Sn; }) = SUM(i = 1..n | NPC(Si))  // switch statement
     if node.type == "switch_statement":
         s_switch, condition_clause, compound_statement = node.children
         cases = [n for n in compound_statement.children if n.type == "case_statement"]
         return sum(SPC(case) for case in cases)
         #return SPC(condition_clause) + cases_spc # seems weird we don't SPC the condition
+
+    # NPC(for(E1; E2; E3) S1) = 1 + NPC(E1) + NPC(E2) + NPC(E3) + NPC(S1)  // for statement
+    if node.type == "for_statement":
+        s_for, s_open_paren, e1, e2, mid_semi, e3, s_close_paren, body = node.children
+        return 1 + SPC(e1) + SPC(e2) + SPC(e3) + SPC(body)
 
     # NPC(S1; S2) = NPC(S1) * NPC(S2)  // sequential statements
     if node.type == "compound_statement":
