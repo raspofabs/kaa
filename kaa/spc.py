@@ -32,22 +32,23 @@ def render_func(f_def, source):
     print("\n".join(lines[start_line:end_line+1]))
 
 
-def SPC(node):
-    if node.type == "function_definition":
-        return SPC(node.children[2])
-    statement_types = [
-            "if_statement",
-            "return_statement",
-            ]
-    if node.type in statement_types: # NPC({ S1 }) = NPC(S1)  // block statement
-        r, expression, semicolon = node.children
-        return SPC(expression)
-# NPC(if (E1) S1 else S2) = NPC(E1) + NPC(S1) + NPC(S2)  // if statement: in case of no else, NPC(S2) = 1
 # NPC(switch (C1) { case E1: S1; case E2: S2; ... case En; Sn; }) = SUM(i = 1..n | NPC(Si))  // switch statement
 # NPC(while (E1) S1) = 1 + NPC(E1) + NPC(S1)  // while statement
 # NPC(do S1 while (E1)) = 1 + NPC(E1) + NPC(S1)  // do-while statement
 # NPC(for(E1; E2; E3) S1) = 1 + NPC(E1) + NPC(E2) + NPC(E3) + NPC(S1)  // for statement
-
+def SPC(node):
+    if node.type == "translation_unit":
+        raise ValueError("SPC only works on functions and methods.")
+    if node.type == "function_definition": # calculate with the compound statement
+        body = node.children[2]
+        assert body.type == "compound_statement"
+        return SPC(body)
+    if node.type == "return_statement":
+        r, expression, semicolon = node.children
+        return SPC(expression)
+    if node.type == "if_statement": # NPC(if (E1) S1 else S2) = NPC(E1) + NPC(S1) + NPC(S2)  // if statement: in case of no else, NPC(S2) = 1
+        s_if, condition_clause, compound_statement, else_clause = node.children
+        return SPC(condition_clause) + SPC( compound_statement ) + SPC( else_clause )
     if node.type == "compound_statement": # NPC(S1; S2) = NPC(S1) * NPC(S2)  // sequential statements
         total = 1
         for child in node.children:
@@ -55,10 +56,9 @@ def SPC(node):
         return total
     # NPC(S1) = 1  // any other statement; not one of the above
     return 1
-    return node.type
 
 def describe_node(node, indent):
-    print(f"{indent}{node.type}")
+    print(f"{indent}{node.type} = {SPC(node)}")
     for child in node.children:
         describe_node(child, indent + "> ")
 

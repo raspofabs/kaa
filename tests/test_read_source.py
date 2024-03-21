@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from .fixtures import source_simple, source_main
+from .fixtures import source_simple, get_source
 
 def test_read_source():
     from kaa.spc import read_source
@@ -41,8 +41,8 @@ def test_read_simple_source(source_simple):
     assert "int hello(int a)" in source_as_text
 
 
-def test_read_main_source(source_main):
-    source_main
+def test_read_main_source():
+    source_main = get_source("main.cpp")
     assert isinstance(source_main, bytes)
     source_as_text = source_main.decode("utf8")
     assert "int main()" in source_as_text

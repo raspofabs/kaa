@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from .fixtures import source_simple, source_main, tree_simple, tree_multiple
+from .fixtures import source_simple, tree_simple, tree_multiple, get_tree
 
 def test_parse_to_tree(source_simple):
     from kaa.spc import parse_source_to_tree
@@ -20,4 +20,30 @@ def test_get_functions(tree_simple, tree_multiple):
     assert functions is not None
     assert isinstance(functions, list)
     assert len(functions) == 4
+
+
+def test_spc_simple(tree_simple):
+    from kaa.spc import SPC, get_functions
+    functions = get_functions(tree_simple)
+    for f in functions:
+        result = SPC(f)
+        assert result == 1
+
+
+def test_spc_other():
+    source, tree = get_tree("one_if.cpp")
+    from kaa.spc import SPC, get_functions
+
+    try:
+        result = SPC(tree.root_node)
+        print(f"node : {tree.root_node.type}")
+        assert False
+    except ValueError:
+        pass
+
+
+    functions = get_functions(tree)
+    for f in functions:
+        result = SPC(f)
+        assert result == 3
 
