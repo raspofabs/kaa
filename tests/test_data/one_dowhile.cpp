@@ -1,8 +1,9 @@
-int one_while(int a) {
+int one_dowhile(int a) {
     int c = 1;
-    while(a > 0) {
+    do {
         c *= a;
         a--;
     }
+    while(a > 0);
     return c;
 }
