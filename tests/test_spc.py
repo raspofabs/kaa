@@ -53,6 +53,7 @@ spc_tests = [
         ("one_switch.cpp",5),
         ("one_dowhile.cpp",3),
         ("one_for.cpp",5),
+        ("two_ifs.cpp",9),
         ]
 
 @pytest.mark.parametrize("variant, expected", spc_tests)
