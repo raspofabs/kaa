@@ -29,8 +29,7 @@ def test_spc_simple(tree_simple):
         result = SPC(f)
         assert result == 1
 
-
-def test_spc_other():
+def test_spc_one_if():
     source, tree = get_tree("one_if.cpp")
     from kaa.spc import SPC, get_functions
 
@@ -46,4 +45,30 @@ def test_spc_other():
     for f in functions:
         result = SPC(f)
         assert result == 3
+
+
+spc_tests = [
+        ("one_if.cpp",3),
+        ("one_while.cpp",2),
+        ]
+
+@pytest.mark.parametrize("variant, expected", spc_tests)
+def test_spc_other(variant, expected):
+    source, tree = get_tree(variant)
+    from kaa.spc import SPC, get_functions, describe_func
+
+    try:
+        result = SPC(tree.root_node)
+        print(f"node : {tree.root_node.type}")
+        assert False
+    except ValueError:
+        pass
+
+
+    functions = get_functions(tree)
+    for f in functions:
+        result = SPC(f)
+        if result != expected:
+            describe_func(f, source)
+        assert result == expected
 

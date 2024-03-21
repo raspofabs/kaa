@@ -33,7 +33,6 @@ def render_func(f_def, source):
 
 
 # NPC(switch (C1) { case E1: S1; case E2: S2; ... case En; Sn; }) = SUM(i = 1..n | NPC(Si))  // switch statement
-# NPC(while (E1) S1) = 1 + NPC(E1) + NPC(S1)  // while statement
 # NPC(do S1 while (E1)) = 1 + NPC(E1) + NPC(S1)  // do-while statement
 # NPC(for(E1; E2; E3) S1) = 1 + NPC(E1) + NPC(E2) + NPC(E3) + NPC(S1)  // for statement
 def SPC(node):
@@ -49,6 +48,9 @@ def SPC(node):
     if node.type == "if_statement": # NPC(if (E1) S1 else S2) = NPC(E1) + NPC(S1) + NPC(S2)  // if statement: in case of no else, NPC(S2) = 1
         s_if, condition_clause, compound_statement, else_clause = node.children
         return SPC(condition_clause) + SPC( compound_statement ) + SPC( else_clause )
+    if node.type == "while_statement": # NPC(while (E1) S1) = 1 + NPC(E1) + NPC(S1)  // while statement
+        s_while, condition_clause, compound_statement = node.children
+        return SPC(condition_clause) + SPC( compound_statement )
     if node.type == "compound_statement": # NPC(S1; S2) = NPC(S1) * NPC(S2)  // sequential statements
         total = 1
         for child in node.children:
