@@ -13,6 +13,9 @@ def test_spc_simple(tree_simple):
 tiny_tests = [
         ("int i = 0;",None),
         ("{if(a){}else{}}",2),
+        ("{if(a && b){}else{}}",3),
+        ("{if(a || b){}else{}}",3),
+        ("{if(a && b || c){}else{}}",4),
         ]
 
 @pytest.mark.parametrize("example, expected", tiny_tests)

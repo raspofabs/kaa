@@ -22,7 +22,7 @@ def SPC(node):
     if node.type == "condition_clause":
         return SPC(node.children[1])
     if node.type == "binary_expression":
-        return 0
+        return sum(1 for c in node.children if c.type in ["&&", "||"])
     if node.type == "update_expression":
         return 0
     if node.type in ["declaration", "identifier"]:
