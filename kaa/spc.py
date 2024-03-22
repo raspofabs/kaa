@@ -5,6 +5,11 @@ from kaa import get_functions, render_func
 def SPC_E(node):
     return SPC(node) or 0
 
+def OPCOST(operator_node):
+    if operator_node.type in ["&&", "||"]:
+        return 1
+    return 0
+
 def SPC_S(node):
     return SPC(node) or 1
 
@@ -22,10 +27,13 @@ def SPC(node):
     if node.type == "condition_clause":
         return SPC(node.children[1])
     if node.type == "binary_expression":
-        return sum(1 for c in node.children if c.type in ["&&", "||"])
+        assert len(node.children) == 3
+        left, op, right = node.children
+        return SPC_E(left) + OPCOST(op) + SPC_E(right)
+    #sum(1 for c in node.children if c.type in ["&&", "||"])
     if node.type == "update_expression":
         return 0
-    if node.type in ["declaration", "identifier"]:
+    if node.type in ["declaration", "identifier", "number_literal"]:
         return None
 
     # NPC(if (E1) S1 else S2) = NPC(E1) + NPC(S1) + NPC(S2)  // if statement: in case of no else, NPC(S2) = 1

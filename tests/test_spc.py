@@ -33,6 +33,7 @@ def test_spc_tiny(example, expected):
     assert result == expected
 
 spc_tests = [
+        ("simple.cpp",1),
         ("one_if.cpp",2),
         ("one_while.cpp",2),
         ("one_switch.cpp",5),
