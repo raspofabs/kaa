@@ -32,6 +32,12 @@ def render_func(f_def, source):
     print("\n".join(lines[start_line:end_line+1]))
 
 
+def SPC_E(node):
+    return SPC(node) or 0
+
+def SPC_S(node):
+    return SPC(node) or 1
+
 def SPC(node):
     if node.type == "translation_unit":
         raise ValueError("SPC only works on functions and methods.")
@@ -49,23 +55,23 @@ def SPC(node):
         return 0
     if node.type == "update_expression":
         return 0
-    if node.type == "declaration":
+    if node.type in ["declaration", "identifier"]:
         return None
 
     # NPC(if (E1) S1 else S2) = NPC(E1) + NPC(S1) + NPC(S2)  // if statement: in case of no else, NPC(S2) = 1
     if node.type == "if_statement":
         s_if, condition_clause, compound_statement, else_clause = node.children
-        return SPC(condition_clause) + SPC( compound_statement ) + SPC( else_clause )
+        return SPC_E(condition_clause) + SPC_S( compound_statement ) + SPC_S( else_clause )
 
     # NPC(while (E1) S1) = 1 + NPC(E1) + NPC(S1)  // while statement
     if node.type == "while_statement":
         s_while, condition_clause, compound_statement = node.children
-        return 1 + SPC(condition_clause) + SPC( compound_statement )
+        return 1 + SPC_E(condition_clause) + SPC_S( compound_statement )
 
     # NPC(do S1 while (E1)) = 1 + NPC(E1) + NPC(S1)  // do-while statement
     if node.type == "do_statement":
         s_do, compound_statement, s_while, expression, semi = node.children
-        return 1 + SPC( compound_statement ) + SPC(expression)
+        return 1 + SPC( compound_statement ) + SPC_E(expression)
 
     # NPC(switch (C1) { case E1: S1; case E2: S2; ... case En; Sn; }) = SUM(i = 1..n | NPC(Si))  // switch statement
     if node.type == "switch_statement":
@@ -77,14 +83,13 @@ def SPC(node):
     # NPC(for(E1; E2; E3) S1) = 1 + NPC(E1) + NPC(E2) + NPC(E3) + NPC(S1)  // for statement
     if node.type == "for_statement":
         s_for, s_open_paren, e1, e2, mid_semi, e3, s_close_paren, body = node.children
-        return 1 + (SPC(e1) or 0) + SPC(e2) + SPC(e3) + SPC(body)
+        return 1 + SPC_E(e1) + SPC_E(e2) + SPC_E(e3) + SPC(body)
 
     # NPC(S1; S2) = NPC(S1) * NPC(S2)  // sequential statements
     if node.type == "compound_statement":
         total = 1
         for child in node.children:
-            if (child_spc := SPC(child)) is not None:
-                total *= child_spc
+            total *= SPC_S(child)
         return total
 
     # NPC(S1) = 1  // any other statement; not one of the above

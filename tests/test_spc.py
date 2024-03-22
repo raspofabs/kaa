@@ -27,8 +27,26 @@ def test_spc_simple(tree_simple):
     functions = get_functions(tree_simple)
     for f in functions:
         result = SPC(f)
-        assert result == 0
+        assert result == 1
 
+tiny_tests = [
+        ("int i = 0;",None),
+        ("{if(a){}else{}}",2),
+        ]
+
+@pytest.mark.parametrize("example, expected", tiny_tests)
+def test_spc_tiny(example, expected):
+    from kaa.parser import get_parser_cpp
+    from kaa.spc import SPC, describe_func
+
+    parser = get_parser_cpp()
+    source = bytes(example,"utf8")
+    tree = parser.parse(source)
+    start_node = tree.root_node.children[0]
+    result = SPC(start_node)
+    if result != expected:
+        describe_func(start_node, source)
+    assert result == expected
 
 spc_tests = [
         ("one_if.cpp",2),
