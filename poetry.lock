@@ -229,7 +229,26 @@ files = [
     {file = "tree_sitter-0.21.1-cp39-cp39-win_amd64.whl", hash = "sha256:001b3162586f2e87949fdee768d266510bd21ec87f5c10f0e8a6fe20f1232647"},
 ]
 
+[[package]]
+name = "tree-sitter-python"
+version = "0.21.0"
+description = "Python grammar for tree-sitter"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "tree_sitter_python-0.21.0-cp38-abi3-macosx_10_9_x86_64.whl", hash = "sha256:29e3addfabdaa88fa2aaaa2426d8ff12f0a0346c46b10dd5a76424355e5fa3cc"},
+    {file = "tree_sitter_python-0.21.0-cp38-abi3-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:4b40e71ebd41046ca4fcde78b734e86f0b3f77055f51f1cac6e2662c37ec0520"},
+    {file = "tree_sitter_python-0.21.0-cp38-abi3-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:cda4e742627724eabed95e06ca67b640f8b31e86e776905afc396c928082f032"},
+    {file = "tree_sitter_python-0.21.0-cp38-abi3-musllinux_1_1_i686.whl", hash = "sha256:df142d166aa6b575fdb0726a64d56cb1d8cb7a3ad5377eb5fa90557ffe4caffe"},
+    {file = "tree_sitter_python-0.21.0-cp38-abi3-musllinux_1_1_x86_64.whl", hash = "sha256:23a0cf850788c990436704837e6125cbf6535fe5a5729b9a84846fc254e915c7"},
+    {file = "tree_sitter_python-0.21.0-cp38-abi3-win32.whl", hash = "sha256:86dce33757fa8d420d1c9089280d352507a7b9601b26732c73b77e9d0ddd8604"},
+    {file = "tree_sitter_python-0.21.0-cp38-abi3-win_amd64.whl", hash = "sha256:86b5c81b00f07b9cdc87e4fade0497c0af7b95365908608e31070668564b02e7"},
+]
+
+[package.extras]
+core = ["tree-sitter (>=0.21,<1.0)"]
+
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "0370e2b4613cb7384e6799d422e292d6bdb3d9d41b055ced06c8fefa0caf55de"
+content-hash = "70fe83310910c9fa921676dd783efd74dfdf2756e0987ba099584d55c5439107"

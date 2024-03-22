@@ -11,9 +11,10 @@ pytest = "^8.1.1"
 pytest-cov = "^4.1.0"
 tree-sitter = "^0.21.1"
 click = "^8.1.7"
+tree-sitter-python = "^0.21.0"
 
 [tool.poetry.scripts]
-kaa_spc = "kaa.spc:run"
+kaa_spc = "kaa.entrypoint:run"
 
 
 [build-system]

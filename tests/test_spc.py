@@ -19,7 +19,7 @@ tiny_tests = [
         ]
 
 @pytest.mark.parametrize("example, expected", tiny_tests)
-def test_spc_tiny(example, expected):
+def test_spc_tiny(capsys, example, expected):
     from kaa.parser import get_parser_cpp
     from kaa.spc import SPC, describe_func
 
@@ -28,8 +28,9 @@ def test_spc_tiny(example, expected):
     tree = parser.parse(source)
     start_node = tree.root_node.children[0]
     result = SPC(start_node)
-    if result != expected:
-        describe_func(start_node, source)
+    describe_func(start_node, source)
+    captured = capsys.readouterr()
+    assert len(captured.out) > len(source)
     assert result == expected
 
 spc_tests = [
@@ -62,4 +63,6 @@ def test_spc_other(variant, expected):
         if result != expected:
             describe_func(f, source)
         assert result == expected
+
+
 

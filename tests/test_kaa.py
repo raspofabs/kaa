@@ -12,7 +12,7 @@ def test_parse_to_tree(source_simple):
 
 
 def test_get_functions(tree_simple, tree_multiple):
-    from kaa import is_function, get_functions
+    from kaa import get_functions
     functions = get_functions(tree_simple)
     assert functions is not None
     assert isinstance(functions, list)
@@ -24,3 +24,24 @@ def test_get_functions(tree_simple, tree_multiple):
     assert len(functions) == 4
 
 
+def test_get_function_with_python(tree_simple, tree_multiple):
+    from kaa import get_functions
+    from kaa.parser import get_parser_python
+    parser = get_parser_python()
+    tree = parser.parse(bytes("print(1)", "utf8"))
+    functions = get_functions(tree)
+    assert functions is not None
+    assert isinstance(functions, list)
+    assert len(functions) == 0
+
+
+
+def test_render_func(capsys):
+    from kaa import get_functions, render_func
+    source, tree = get_tree("simple.cpp")
+    functions = get_functions(tree)
+    render_func(functions[0], source)
+    captured = capsys.readouterr()
+    assert "hello" in captured.out
+    assert "\n" in captured.out
+    assert "int hello(int a) {" in captured.out
