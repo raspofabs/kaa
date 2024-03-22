@@ -43,6 +43,15 @@ def SPC(node):
         r, expression, semicolon = node.children
         return SPC(expression)
 
+    if node.type == "condition_clause":
+        return SPC(node.children[1])
+    if node.type == "binary_expression":
+        return 0
+    if node.type == "update_expression":
+        return 0
+    if node.type == "declaration":
+        return None
+
     # NPC(if (E1) S1 else S2) = NPC(E1) + NPC(S1) + NPC(S2)  // if statement: in case of no else, NPC(S2) = 1
     if node.type == "if_statement":
         s_if, condition_clause, compound_statement, else_clause = node.children
@@ -51,7 +60,7 @@ def SPC(node):
     # NPC(while (E1) S1) = 1 + NPC(E1) + NPC(S1)  // while statement
     if node.type == "while_statement":
         s_while, condition_clause, compound_statement = node.children
-        return SPC(condition_clause) + SPC( compound_statement )
+        return 1 + SPC(condition_clause) + SPC( compound_statement )
 
     # NPC(do S1 while (E1)) = 1 + NPC(E1) + NPC(S1)  // do-while statement
     if node.type == "do_statement":
@@ -68,13 +77,14 @@ def SPC(node):
     # NPC(for(E1; E2; E3) S1) = 1 + NPC(E1) + NPC(E2) + NPC(E3) + NPC(S1)  // for statement
     if node.type == "for_statement":
         s_for, s_open_paren, e1, e2, mid_semi, e3, s_close_paren, body = node.children
-        return 1 + SPC(e1) + SPC(e2) + SPC(e3) + SPC(body)
+        return 1 + (SPC(e1) or 0) + SPC(e2) + SPC(e3) + SPC(body)
 
     # NPC(S1; S2) = NPC(S1) * NPC(S2)  // sequential statements
     if node.type == "compound_statement":
         total = 1
         for child in node.children:
-            total *= SPC(child)
+            if (child_spc := SPC(child)) is not None:
+                total *= child_spc
         return total
 
     # NPC(S1) = 1  // any other statement; not one of the above
