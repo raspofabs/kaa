@@ -30,6 +30,11 @@ def SPC(node):
         assert len(node.children) == 3
         left, op, right = node.children
         return SPC_E(left) + OPCOST(op) + SPC_E(right)
+    # NPC(E1 ? E2 : E3) = 2 + NPC(E1) + NPC(E2) + NPC(E3)  // conditional operator
+    if node.type == "conditional_expression":
+        assert len(node.children) == 5
+        condition, s_q, if_true, s_colon, if_false  = node.children
+        return 2 + SPC_E(condition) + OPCOST(if_true) + SPC_E(if_false)
     #sum(1 for c in node.children if c.type in ["&&", "||"])
     if node.type == "update_expression":
         return 0

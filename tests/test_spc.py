@@ -41,6 +41,7 @@ spc_tests = [
         ("one_dowhile.cpp",3),
         ("one_for.cpp",2),
         ("two_ifs.cpp",4),
+        ("one_ternary.cpp",2),
         ]
 
 @pytest.mark.parametrize("variant, expected", spc_tests)
