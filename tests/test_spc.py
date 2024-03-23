@@ -21,6 +21,7 @@ tiny_tests = [
         ("{if(a && b){}else{}}",3),
         ("{if(a || b){}else{}}",3),
         ("{if(a && b || c){}else{}}",4),
+        ("{while(a)/*c*/{ --a; }}",2),
         ("int f(int a) { return a > 3 ? 1 : 0;}",2),
         ]
 

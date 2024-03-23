@@ -62,9 +62,7 @@ def SPC(node):
 
     # NPC(if (E1) S1 else S2) = NPC(E1) + NPC(S1) + NPC(S2)  // if statement: in case of no else, NPC(S2) = 1
     if node.type == "if_statement":
-        #s_if, condition_clause, compound_statement, *else_clause = node.children
         print(node.sexp())
-        #print(f"{condition_clause.grammar_name}")
         condition_clause = node.child_by_field_name("condition")
         compound_statement = node.child_by_field_name("consequence")
         else_clause = node.child_by_field_name("alternative")
@@ -75,7 +73,10 @@ def SPC(node):
 
     # NPC(while (E1) S1) = 1 + NPC(E1) + NPC(S1)  // while statement
     if node.type == "while_statement":
-        s_while, condition_clause, compound_statement = node.children
+        print(node.sexp())
+        #s_while, condition_clause, compound_statement = node.children
+        condition_clause = node.child_by_field_name("condition")
+        compound_statement = node.child_by_field_name("body")
         return 1 + SPC_E(condition_clause) + SPC_S( compound_statement )
 
     # NPC(do S1 while (E1)) = 1 + NPC(E1) + NPC(S1)  // do-while statement
