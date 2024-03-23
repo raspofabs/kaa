@@ -12,6 +12,7 @@ def test_spc_simple(tree_simple):
 
 tiny_tests = [
         ("int i = 0;",None),
+        ("{if(a){}}",2),
         ("{if(a){}else{}}",2),
         ("{if(a && b){}else{}}",3),
         ("{if(a || b){}else{}}",3),

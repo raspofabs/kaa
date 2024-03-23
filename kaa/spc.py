@@ -57,8 +57,11 @@ def SPC(node):
 
     # NPC(if (E1) S1 else S2) = NPC(E1) + NPC(S1) + NPC(S2)  // if statement: in case of no else, NPC(S2) = 1
     if node.type == "if_statement":
-        s_if, condition_clause, compound_statement, else_clause = node.children
-        return SPC_E(condition_clause) + SPC_S( compound_statement ) + SPC_S( else_clause )
+        s_if, condition_clause, compound_statement, *else_clause = node.children
+        if len(else_clause) == 0:
+            return SPC_E(condition_clause) + SPC_S( compound_statement ) + 1
+        else:
+            return SPC_E(condition_clause) + SPC_S( compound_statement ) + SPC_S( else_clause[0] )
 
     # NPC(while (E1) S1) = 1 + NPC(E1) + NPC(S1)  // while statement
     if node.type == "while_statement":
