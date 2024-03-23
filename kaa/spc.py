@@ -24,6 +24,20 @@ def SPC(node):
         r, expression, semicolon = node.children
         return SPC(expression)
 
+    if node.type == "case_statement":
+        case, *tail = node.children
+        if case.type == "case":
+            s_literal, s_col, *statement = tail
+            if len(statement):
+                return SPC_S(statement[0])
+            else:
+                return 0
+        elif case.type == "default":
+            s_col, *statement = tail
+            if len(statement):
+                return SPC_S(statement[0])
+            else:
+                return 0
     if node.type == "condition_clause":
         return SPC(node.children[1])
     if node.type == "binary_expression":

@@ -16,6 +16,7 @@ tiny_tests = [
         ("{if(a && b){}else{}}",3),
         ("{if(a || b){}else{}}",3),
         ("{if(a && b || c){}else{}}",4),
+        ("int f(int a) { return a > 3 ? 1 : 0;}",2),
         ]
 
 @pytest.mark.parametrize("example, expected", tiny_tests)
@@ -31,6 +32,8 @@ def test_spc_tiny(capsys, example, expected):
     describe_func(start_node, source)
     captured = capsys.readouterr()
     assert len(captured.out) > len(source)
+    if result != expected:
+        print(captured.out)
     assert result == expected
 
 spc_tests = [
@@ -38,10 +41,13 @@ spc_tests = [
         ("one_if.cpp",2),
         ("one_while.cpp",2),
         ("one_switch.cpp",5),
+        ("extended_switch.cpp",4),
         ("one_dowhile.cpp",3),
         ("one_for.cpp",2),
         ("two_ifs.cpp",4),
         ("one_ternary.cpp",2),
+        ("classes_one_if.cpp",2),
+        ("lambda_one_if.cpp",2),
         ]
 
 @pytest.mark.parametrize("variant, expected", spc_tests)
