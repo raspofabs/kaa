@@ -13,7 +13,11 @@ def test_spc_simple(tree_simple):
 tiny_tests = [
         ("int i = 0;",None),
         ("{if(a){}}",2),
+        ("{if(/*c*/ a){}}",2),
         ("{if(a){}else{}}",2),
+        ("{if(a){if(b){}}}",3),
+        ("{if(a){}else{if(b){}}}",3),
+        ("{if(a){}/*c*/else{if(b){}}}",3),
         ("{if(a && b){}else{}}",3),
         ("{if(a || b){}else{}}",3),
         ("{if(a && b || c){}else{}}",4),
@@ -49,6 +53,7 @@ spc_tests = [
         ("one_ternary.cpp",2),
         ("classes_one_if.cpp",2),
         ("lambda_one_if.cpp",2),
+        ("qac_example.cpp",26),
         ]
 
 @pytest.mark.parametrize("variant, expected", spc_tests)

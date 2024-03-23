@@ -14,6 +14,8 @@ def SPC_S(node):
     return SPC(node) or 1
 
 def SPC(node):
+    if node.type == "comment":
+        return None
     if node.type == "translation_unit":
         raise ValueError("SPC only works on functions and methods.")
     if node.type == "function_definition": # calculate with the compound statement
@@ -40,6 +42,9 @@ def SPC(node):
                 return 0
     if node.type == "condition_clause":
         return SPC(node.children[1])
+    if node.type == "else_clause":
+        s_else, statement = node.children
+        return SPC(node.children[1])
     if node.type == "binary_expression":
         assert len(node.children) == 3
         left, op, right = node.children
@@ -57,11 +62,16 @@ def SPC(node):
 
     # NPC(if (E1) S1 else S2) = NPC(E1) + NPC(S1) + NPC(S2)  // if statement: in case of no else, NPC(S2) = 1
     if node.type == "if_statement":
-        s_if, condition_clause, compound_statement, *else_clause = node.children
-        if len(else_clause) == 0:
+        #s_if, condition_clause, compound_statement, *else_clause = node.children
+        print(node.sexp())
+        #print(f"{condition_clause.grammar_name}")
+        condition_clause = node.child_by_field_name("condition")
+        compound_statement = node.child_by_field_name("consequence")
+        else_clause = node.child_by_field_name("alternative")
+        if else_clause is None:
             return SPC_E(condition_clause) + SPC_S( compound_statement ) + 1
         else:
-            return SPC_E(condition_clause) + SPC_S( compound_statement ) + SPC_S( else_clause[0] )
+            return SPC_E(condition_clause) + SPC_S( compound_statement ) + SPC_S( else_clause )
 
     # NPC(while (E1) S1) = 1 + NPC(E1) + NPC(S1)  // while statement
     if node.type == "while_statement":
