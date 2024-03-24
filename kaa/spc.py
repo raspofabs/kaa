@@ -19,6 +19,7 @@ def SPC(node):
     if node.type == "translation_unit":
         raise ValueError("SPC only works on functions and methods.")
     if node.type == "function_definition": # calculate with the compound statement
+        print(node.sexp())
         body = node.children[2]
         assert body.type == "compound_statement"
         return SPC(body)
@@ -43,14 +44,17 @@ def SPC(node):
     if node.type == "condition_clause":
         return SPC(node.children[1])
     if node.type == "else_clause":
+        print(node.sexp())
         s_else, statement = node.children
         return SPC(node.children[1])
     if node.type == "binary_expression":
+        print(node.sexp())
         assert len(node.children) == 3
         left, op, right = node.children
         return SPC_E(left) + OPCOST(op) + SPC_E(right)
     # NPC(E1 ? E2 : E3) = 2 + NPC(E1) + NPC(E2) + NPC(E3)  // conditional operator
     if node.type == "conditional_expression":
+        print(node.sexp())
         assert len(node.children) == 5
         condition, s_q, if_true, s_colon, if_false  = node.children
         return 2 + SPC_E(condition) + OPCOST(if_true) + SPC_E(if_false)
@@ -79,12 +83,12 @@ def SPC(node):
 
     # NPC(do S1 while (E1)) = 1 + NPC(E1) + NPC(S1)  // do-while statement
     if node.type == "do_statement":
+        print(node.sexp())
         s_do, compound_statement, s_while, expression, semi = node.children
         return 1 + SPC( compound_statement ) + SPC_E(expression)
 
     # NPC(switch (C1) { case E1: S1; case E2: S2; ... case En; Sn; }) = SUM(i = 1..n | NPC(Si))  // switch statement
     if node.type == "switch_statement":
-        print(node.sexp())
         condition_clause = node.child_by_field_name("condition")
         compound_statement = node.child_by_field_name("body")
         cases = [n for n in compound_statement.children if n.type == "case_statement"]
@@ -92,11 +96,19 @@ def SPC(node):
 
     # NPC(for(E1; E2; E3) S1) = 1 + NPC(E1) + NPC(E2) + NPC(E3) + NPC(S1)  // for statement
     if node.type == "for_statement":
-        s_for, s_open_paren, e1, e2, mid_semi, e3, s_close_paren, body = node.children
-        return 1 + SPC_E(e1) + SPC_E(e2) + SPC_E(e3) + SPC(body)
+        s_initializer = node.child_by_field_name("initializer")
+        s_condition = node.child_by_field_name("condition")
+        s_update = node.child_by_field_name("update")
+        body = node.child_by_field_name("body")
+        return 1 + SPC_E(s_initializer) + SPC_E(s_condition) + SPC_E(s_update) + SPC(body)
+
+    if node.type == "for_range_loop":
+        body = node.child_by_field_name("body")
+        return 1 + SPC(body)
 
     # NPC(S1; S2) = NPC(S1) * NPC(S2)  // sequential statements
     if node.type == "compound_statement":
+        print(node.sexp())
         total = 1
         for child in node.children:
             total *= SPC_S(child)
