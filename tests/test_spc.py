@@ -104,18 +104,22 @@ def test_spc_tiny(capsys, example, expected):
     assert result == expected
 
 spc_tests = [
-        ("simple.cpp",1),
-        ("one_if.cpp",2),
-        ("one_while.cpp",2),
-        ("one_switch.cpp",5),
+        ("classes_one_if.cpp",2),
+        ("complex.cpp",6),
         ("extended_switch.cpp",4),
+        ("high_spc.cpp",256),
+        ("lambda_one_if.cpp",2),
+        ("main.cpp",2),
         ("one_dowhile.cpp",2),
         ("one_for.cpp",2),
-        ("two_ifs.cpp",4),
+        ("one_if.cpp",2),
+        ("one_switch.cpp",5),
         ("one_ternary.cpp",2),
-        ("classes_one_if.cpp",2),
-        ("lambda_one_if.cpp",2),
+        ("one_while.cpp",2),
         ("qac_example.cpp",26),
+        ("simple.cpp",1),
+        ("two_ifs.cpp",4),
+        #("z_example_gilded_rose.cpp",511),
         ]
 
 @pytest.mark.parametrize("variant, expected", spc_tests)

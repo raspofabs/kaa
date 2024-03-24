@@ -66,7 +66,7 @@ def SPC(node):
         return SPC(e_exp)
 
     if node.type == "else_clause":
-        debug_node(node)
+        #debug_node(node)
         s_else, s_statement = non_comment_children(node)
         return SPC(s_statement)
 
@@ -74,6 +74,9 @@ def SPC(node):
         #debug_node(node)
         l_paren, e_exp, r_paren = non_comment_children(node)
         return SPC_E(e_exp)
+
+    if node.type == "field_expression":
+        return None
 
     if node.type == "binary_expression":
         e_left = node.child_by_field_name("left")

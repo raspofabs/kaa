@@ -21,5 +21,11 @@ int complicated(int a, int b) {
     else
         c += 5;
 
+    // 16 by this point
+    if(n) {} // 32
+    if(n) {} // 64
+    if(n) {} // 128
+    if(n) {} // 256
+
     return c;
 }
