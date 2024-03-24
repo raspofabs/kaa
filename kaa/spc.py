@@ -10,13 +10,6 @@ def debug_node(node):
         while more:
             print(f"Child: {cursor.node.type}/{cursor.field_name}")
             more = cursor.goto_next_sibling()
-    
-    #field_names = ", ".join(f"{node.field_name_for_child(i)}" for i, n in enumerate(node.children))
-    #print(f"Field names: {field_names}")
-    #cnames = ", ".join(f"{n.type}/{n.grammar_name}" for n in node.children)
-    #print(f"Child names: {cnames}")
-    #cdirs = ", ".join(f"{dir(n)}" for n in node.children)
-    #print(f"Child dir: {cdirs}")
 
 def non_comment_children(node):
     return filter(lambda x: x.type != "comment", node.children)
@@ -58,10 +51,12 @@ def SPC(node):
                 return SPC_S(statement[0])
             else:
                 return 0
-        elif case.type == "default":
+        else:
+            assert case.type == "default"
             s_col, *statement = tail
+            # we already account for an empty default, so if we have one, subtract one from the SPC
             if len(statement):
-                return SPC_S(statement[0])
+                return SPC_S(statement[0]) - 1
             else:
                 return 0
 
@@ -123,11 +118,17 @@ def SPC(node):
         return 1 + SPC(s_body) + SPC_E(e_condition)
 
     # NPC(switch (C1) { case E1: S1; case E2: S2; ... case En; Sn; }) = SUM(i = 1..n | NPC(Si))  // switch statement
+    # The above is wrong as it ignores the condition. 
+    # It's SPC(Condition) + sum(SPC(x) for x in cases (including implicit default))
     if node.type == "switch_statement":
         condition_clause = node.child_by_field_name("condition")
         compound_statement = node.child_by_field_name("body")
         cases = [n for n in compound_statement.children if n.type == "case_statement"]
-        return SPC_E(condition_clause) + sum(SPC(case) for case in cases)
+        # even if there is no explicit default, we can end up there, so always
+        # count it (this is wrong in some cases, such as when all possible
+        # values are branched upon, such as when you use switch(value&3) and
+        # provide all four cases
+        return SPC_E(condition_clause) + sum(SPC(case) for case in cases) + 1
 
     # NPC(for(E1; E2; E3) S1) = 1 + NPC(E1) + NPC(E2) + NPC(E3) + NPC(S1)  // for statement
     if node.type == "for_statement":
