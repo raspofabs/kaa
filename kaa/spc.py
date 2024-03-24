@@ -2,6 +2,25 @@ from pathlib import Path
 from kaa import read_source, parse_source_to_tree
 from kaa import get_functions, render_func
 
+def debug_node(node):
+    print(f"Node:{node.type}/{node.id}/{node.grammar_name} -> {node.sexp()}")
+    cursor = node.walk()
+    if cursor.goto_first_child():
+        more = True
+        while more:
+            print(f"Child: {cursor.node.type}/{cursor.field_name}")
+            more = cursor.goto_next_sibling()
+    
+    #field_names = ", ".join(f"{node.field_name_for_child(i)}" for i, n in enumerate(node.children))
+    #print(f"Field names: {field_names}")
+    #cnames = ", ".join(f"{n.type}/{n.grammar_name}" for n in node.children)
+    #print(f"Child names: {cnames}")
+    #cdirs = ", ".join(f"{dir(n)}" for n in node.children)
+    #print(f"Child dir: {cdirs}")
+
+def non_comment_children(node):
+    return filter(lambda x: x.type != "comment", node.children)
+
 def SPC_E(node):
     return SPC(node) or 0
 
@@ -16,19 +35,23 @@ def SPC_S(node):
 def SPC(node):
     if node.type == "comment":
         return None
+
     if node.type == "translation_unit":
         raise ValueError("SPC only works on functions and methods.")
+
     if node.type == "function_definition": # calculate with the compound statement
-        print(node.sexp())
-        body = node.children[2]
+        #debug_node(node)
+        body = node.child_by_field_name("body")
         assert body.type == "compound_statement"
         return SPC(body)
+
     if node.type == "return_statement":
-        r, expression, semicolon = node.children
+        #debug_node(node)
+        r, expression, semicolon = non_comment_children(node)
         return SPC(expression)
 
     if node.type == "case_statement":
-        case, *tail = node.children
+        case, *tail = non_comment_children(node)
         if case.type == "case":
             s_literal, s_col, *statement = tail
             if len(statement):
@@ -41,26 +64,39 @@ def SPC(node):
                 return SPC_S(statement[0])
             else:
                 return 0
+
     if node.type == "condition_clause":
-        return SPC(node.children[1])
+        #debug_node(node)
+        e_exp = node.child_by_field_name("value")
+        return SPC(e_exp)
+
     if node.type == "else_clause":
-        print(node.sexp())
-        s_else, statement = node.children
-        return SPC(node.children[1])
+        debug_node(node)
+        s_else, s_statement = non_comment_children(node)
+        return SPC(s_statement)
+
+    if node.type == "parenthesized_expression":
+        #debug_node(node)
+        l_paren, e_exp, r_paren = non_comment_children(node)
+        return SPC_E(e_exp)
+
     if node.type == "binary_expression":
-        print(node.sexp())
-        assert len(node.children) == 3
-        left, op, right = node.children
-        return SPC_E(left) + OPCOST(op) + SPC_E(right)
+        e_left = node.child_by_field_name("left")
+        s_op = node.child_by_field_name("operator")
+        e_right = node.child_by_field_name("right")
+        return SPC_E(e_left) + OPCOST(s_op) + SPC_E(e_right)
+
     # NPC(E1 ? E2 : E3) = 2 + NPC(E1) + NPC(E2) + NPC(E3)  // conditional operator
     if node.type == "conditional_expression":
-        print(node.sexp())
-        assert len(node.children) == 5
-        condition, s_q, if_true, s_colon, if_false  = node.children
-        return 2 + SPC_E(condition) + OPCOST(if_true) + SPC_E(if_false)
+        e_condition = node.child_by_field_name("condition")
+        e_left = node.child_by_field_name("consequence")
+        e_right = node.child_by_field_name("alternative")
+        return 2 + SPC_E(e_condition) + SPC_E(e_left) + SPC_E(e_right)
+
     #sum(1 for c in node.children if c.type in ["&&", "||"])
     if node.type == "update_expression":
         return 0
+
     if node.type in ["declaration", "identifier", "number_literal"]:
         return None
 
@@ -76,16 +112,15 @@ def SPC(node):
 
     # NPC(while (E1) S1) = 1 + NPC(E1) + NPC(S1)  // while statement
     if node.type == "while_statement":
-        print(node.sexp())
         condition_clause = node.child_by_field_name("condition")
         compound_statement = node.child_by_field_name("body")
         return 1 + SPC_E(condition_clause) + SPC_S( compound_statement )
 
     # NPC(do S1 while (E1)) = 1 + NPC(E1) + NPC(S1)  // do-while statement
     if node.type == "do_statement":
-        print(node.sexp())
-        s_do, compound_statement, s_while, expression, semi = node.children
-        return 1 + SPC( compound_statement ) + SPC_E(expression)
+        e_condition = node.child_by_field_name("condition")
+        s_body = node.child_by_field_name("body")
+        return 1 + SPC(s_body) + SPC_E(e_condition)
 
     # NPC(switch (C1) { case E1: S1; case E2: S2; ... case En; Sn; }) = SUM(i = 1..n | NPC(Si))  // switch statement
     if node.type == "switch_statement":
@@ -108,7 +143,7 @@ def SPC(node):
 
     # NPC(S1; S2) = NPC(S1) * NPC(S2)  // sequential statements
     if node.type == "compound_statement":
-        print(node.sexp())
+        #debug_node(node)
         total = 1
         for child in node.children:
             total *= SPC_S(child)
