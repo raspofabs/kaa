@@ -23,6 +23,7 @@ tiny_tests = [
         ("{if(a && b || c){}else{}}",4),
         ("{while(a)/*c*/{ --a; }}",2),
         ("int f(int a) { return a > 3 ? 1 : 0;}",2),
+        ("{switch(a)/*c*/{case 0: break; default: break;}}",2),
         ]
 
 @pytest.mark.parametrize("example, expected", tiny_tests)
