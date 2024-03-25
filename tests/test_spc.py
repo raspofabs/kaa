@@ -84,6 +84,10 @@ tiny_tests = [
         ("{/*c*/ for(int /*c*/a/*c*/ =/*c*/ 0/*c*/; /*c*/ a /*c*/ < /*c*/ 10 /*c*/ ; /*c*/ ++1 /*c*/ ) /*c*/ { /*c*/ } /*c*/ }",2),
         ("{for(/*c*/auto/*c*/ a/*c*/ :/*c*/ range/*c*/)/*c*/ {if(a){}}}",3),
         ("{for(auto a:b){} for(auto a:c){}}",4),
+        ("{if (str == \"string\"){}}", 2),
+        # TODO:
+        #("int f(int a) { return x[a > 3 ? 1 : 0];}",2),
+        #("int f(int a) { return x(a > 3 ? 1 : 0);}",2),
         ]
 
 @pytest.mark.parametrize("example, expected", tiny_tests)
@@ -119,7 +123,7 @@ spc_tests = [
         ("qac_example.cpp",26),
         ("simple.cpp",1),
         ("two_ifs.cpp",4),
-        #("z_example_gilded_rose.cpp",511),
+        ("z_example_gilded_rose.cpp",211),
         ]
 
 @pytest.mark.parametrize("variant, expected", spc_tests)

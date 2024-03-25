@@ -75,7 +75,7 @@ def SPC(node):
         l_paren, e_exp, r_paren = non_comment_children(node)
         return SPC_E(e_exp)
 
-    if node.type == "field_expression":
+    if node.type in ["field_expression", "subscript_expression", "call_expression"]:
         return None
 
     if node.type == "binary_expression":
@@ -95,7 +95,7 @@ def SPC(node):
     if node.type == "update_expression":
         return 0
 
-    if node.type in ["declaration", "identifier", "number_literal"]:
+    if node.type in ["declaration", "identifier", "number_literal", "string_literal"]:
         return None
 
     # NPC(if (E1) S1 else S2) = NPC(E1) + NPC(S1) + NPC(S2)  // if statement: in case of no else, NPC(S2) = 1
