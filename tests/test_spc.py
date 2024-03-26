@@ -88,8 +88,8 @@ tiny_tests = [
         ("{if (str == \"string\"){}}", 2),
         ("{ return x[a > 3 ? 1 : 0];}",2),
         ("{ return (a > 3 ? 1 : 0)[x];}",2),
-        # TODO:
-        #("int f(int a) { return x(a > 3 ? 1 : 0);}",2),
+        ("int f(int a) { return x(a > 3 ? 1 : 0);}",2),
+        ("int f(int a) { return x(a > 3 ? 1 : 0, a < 7 ? 1 : 0);}",4),
         ]
 
 @pytest.mark.parametrize("example, expected", tiny_tests)

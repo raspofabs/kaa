@@ -11,8 +11,14 @@ def debug_node(node):
             print(f"Child: {cursor.node.type}/{cursor.field_name}")
             more = cursor.goto_next_sibling()
 
+def non_comment(nodes):
+    return filter(lambda x: x.type != "comment", nodes)
+
+def non_comma(nodes):
+    return filter(lambda x: x.type != ",", nodes)
+
 def non_comment_children(node):
-    return filter(lambda x: x.type != "comment", node.children)
+    return non_comment(node.children)
 
 def SPC_E(node):
     return SPC(node) or 0
@@ -75,11 +81,21 @@ def SPC(node):
         l_paren, e_exp, r_paren = non_comment_children(node)
         return SPC_E(e_exp)
 
-    if node.type in ["field_expression", "call_expression"]:
+    if node.type in ["field_expression"]:
         return None
 
-    if node.type == "subscript_expression":
+    if node.type == "call_expression":
         debug_node(node)
+        e_arguments = node.child_by_field_name("arguments")
+        return SPC_E(e_arguments)
+
+    if node.type == "argument_list":
+        debug_node(node)
+        s_open, *e_arguments, s_close = non_comma(non_comment_children(node))
+        return sum(map(SPC_E, e_arguments))
+
+    if node.type == "subscript_expression":
+        #debug_node(node)
         e_argument = node.child_by_field_name("argument")
         e_index = node.child_by_field_name("indices")
         return SPC_E(e_argument) + SPC_E(e_index)
@@ -143,7 +159,7 @@ def SPC(node):
         # count it (this is wrong in some cases, such as when all possible
         # values are branched upon, such as when you use switch(value&3) and
         # provide all four cases
-        return SPC_E(condition_clause) + sum(SPC(case) for case in cases) + 1
+        return SPC_E(condition_clause) + sum(map(SPC, cases)) + 1
 
     # NPC(for(E1; E2; E3) S1) = 1 + NPC(E1) + NPC(E2) + NPC(E3) + NPC(S1)  // for statement
     if node.type == "for_statement":
