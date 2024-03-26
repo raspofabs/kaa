@@ -31,8 +31,15 @@ def OPCOST(operator_node):
 def SPC_S(node):
     return SPC(node) or 1
 
+def SPC_E_ARGS(nodes):
+    a_paths = map(lambda x:SPC_E(x)+1, nodes)
+    total = 1
+    for pc in a_paths:
+        total *= pc
+    return total - 1
+
 def SPC(node):
-    if node.type in ["comment", "identifier", "number_literal", "string_literal"]:
+    if node.type in ["comment", "array_declarator", "qualified_identifier", "identifier", "number_literal", "string_literal"]:
         return None
 
     if node.type == "translation_unit":
@@ -47,7 +54,7 @@ def SPC(node):
     if node.type == "return_statement":
         #debug_node(node)
         r, expression, semicolon = non_comment_children(node)
-        return SPC(expression)
+        return SPC_E(expression) + 1
 
     if node.type == "case_statement":
         case, *tail = non_comment_children(node)
@@ -92,10 +99,10 @@ def SPC(node):
     if node.type in ["expression_statement"]:
         #debug_node(node)
         e_expression, s_semi = non_comment_children(node)
-        return SPC_E(e_expression)
+        return 1 + SPC_E(e_expression)
 
     if node.type in ["assignment_expression"]:
-        debug_node(node)
+        #debug_node(node)
         e_left = node.child_by_field_name("left")
         s_op = node.child_by_field_name("operator")
         e_right = node.child_by_field_name("right")
@@ -104,7 +111,7 @@ def SPC(node):
     if node.type in ["declaration"]:
         #debug_node(node)
         e_declarator = node.child_by_field_name("declarator")
-        return SPC(e_declarator)
+        return 1 + SPC_E(e_declarator)
 
     if node.type == "init_declarator":
         #debug_node(node)
@@ -114,7 +121,12 @@ def SPC(node):
     if node.type == "argument_list":
         #debug_node(node)
         s_open, *e_arguments, s_close = non_comma(non_comment_children(node))
-        return sum(map(SPC_E, e_arguments))
+        return SPC_E_ARGS(e_arguments)
+
+    if node.type == "initializer_list":
+        #debug_node(node)
+        s_open, *e_arguments, s_close = non_comma(non_comment_children(node))
+        return SPC_E_ARGS(e_arguments)
 
     if node.type == "subscript_expression":
         #debug_node(node)
@@ -139,7 +151,7 @@ def SPC(node):
         e_condition = node.child_by_field_name("condition")
         e_left = node.child_by_field_name("consequence")
         e_right = node.child_by_field_name("alternative")
-        return 2 + SPC_E(e_condition) + SPC_E(e_left) + SPC_E(e_right)
+        return 1 + SPC_E(e_condition) + SPC_E(e_left) + SPC_E(e_right)
 
     #sum(1 for c in node.children if c.type in ["&&", "||"])
     if node.type == "update_expression":
@@ -186,7 +198,7 @@ def SPC(node):
         s_condition = node.child_by_field_name("condition")
         s_update = node.child_by_field_name("update")
         body = node.child_by_field_name("body")
-        return 1 + SPC_E(s_initializer) + SPC_E(s_condition) + SPC_E(s_update) + SPC(body)
+        return 1 + (SPC_E(s_initializer)-1) + SPC_E(s_condition) + SPC_E(s_update) + SPC(body)
 
     if node.type == "for_range_loop":
         body = node.child_by_field_name("body")
@@ -204,7 +216,8 @@ def SPC(node):
     return 1
 
 def describe_node(node, indent):
-    print(f"{indent}{node.type} = {SPC(node)}")
+    if node.type != "comment":
+        print(f"{indent}{node.type} = {SPC(node)}")
     for child in node.children:
         describe_node(child, indent + "> ")
 

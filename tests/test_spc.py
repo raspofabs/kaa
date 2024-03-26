@@ -52,7 +52,7 @@ def test_empty_node_debug(capsys):
 
 # Lots of small tests
 tiny_tests = [
-        ("int i = 0;",None),
+        ("int i = 0;",1),
         ("int func() {}",1),
         ("int func(a) /*c*/ {if(a){}}",2),
         ("int func(a) { return /*c*/ a ? b : c;}",2),
@@ -93,6 +93,8 @@ tiny_tests = [
         ("{ int b = a > 3 ? 1 : 0; return b; }",2),
         ("{ int b = 0; b = a > 3 ? 1 : 0; return b; }",2),
         ("{ int b = 2, c = 0; (a > 3 ? b : c) = 1; return b+c; }",2),
+        ("{ std::cout << 1; }",1),
+        ("{ std::cout << 1 << std::endl; }",1),
         ]
 
 @pytest.mark.parametrize("example, expected", tiny_tests)
@@ -131,7 +133,9 @@ spc_tests = [
         ("z_example_gilded_rose.cpp",211),
         ("z_example_tennis1.cpp",20),
         ("z_example_tennis2.cpp",139968000),
+        ("z_example_tennis3.cpp",12),
         ]
+#spc_tests = []
 
 @pytest.mark.parametrize("variant, expected", spc_tests)
 def test_spc_other(variant, expected):
