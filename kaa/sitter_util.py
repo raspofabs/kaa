@@ -39,3 +39,13 @@ def get_language_cpp():
             return Language(library_file, "cpp")
     return None
 
+
+def debug_node(node):
+    print(f"Node:{node.type}/{node.id}/{node.grammar_name} -> {node.sexp()}")
+    cursor = node.walk()
+    if cursor.goto_first_child():
+        more = True
+        while more:
+            print(f"Child: {cursor.node.type}/{cursor.field_name}")
+            more = cursor.goto_next_sibling()
+

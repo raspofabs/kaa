@@ -35,6 +35,17 @@ def test_get_function_with_python(tree_simple, tree_multiple):
     assert len(functions) == 0
 
 
+def test_get_function_name():
+    from kaa import get_functions, get_function_name
+    from kaa.sitter_util import debug_node
+    source, tree = get_tree("simple.cpp")
+    functions = get_functions(tree)
+    f_def = functions[0]
+    f_name = get_function_name(f_def, source)
+    if f_name != "hello":
+        debug_node(f_def)
+    assert f_name == "hello"
+
 
 def test_render_func(capsys):
     from kaa import get_functions, render_func
@@ -45,3 +56,5 @@ def test_render_func(capsys):
     assert "hello" in captured.out
     assert "\n" in captured.out
     assert "int hello(int a) {" in captured.out
+
+

@@ -1,15 +1,8 @@
 from pathlib import Path
 from kaa import read_source, parse_source_to_tree
 from kaa import get_functions, render_func
+from kaa.sitter_util import debug_node
 
-def debug_node(node):
-    print(f"Node:{node.type}/{node.id}/{node.grammar_name} -> {node.sexp()}")
-    cursor = node.walk()
-    if cursor.goto_first_child():
-        more = True
-        while more:
-            print(f"Child: {cursor.node.type}/{cursor.field_name}")
-            more = cursor.goto_next_sibling()
 
 def non_comment(nodes):
     return filter(lambda x: x.type != "comment", nodes)
