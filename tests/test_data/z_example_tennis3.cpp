@@ -1,3 +1,9 @@
+// taken from Emily Bache's git-repo, annotated by me
+// Original work reproduced under:
+// The MIT License (MIT)
+// Copyright (c) 2015 @emilybache
+// https://github.com/emilybache/Tennis-Refactoring-Kata/blob/main/cpp/tennis3.cc
+
 const std::string tennis_score(int p1, int p2) {
     std::string s;
     std::string p1N = "player1";

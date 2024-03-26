@@ -1,10 +1,11 @@
 // taken from Emily Bache's git-repo, annotated by me
+// Original work reproduced under:
+// The MIT License (MIT)
+// Copyright (c) 2015 @emilybache
 // https://github.com/emilybache/GildedRose-Refactoring-Kata/blob/main/cpp/src/GildedRose.cc
+
 #include "GildedRose.h"
 
-//GildedRose::GildedRose(vector<Item> & items) : items(items)
-//{}
-    
 void GildedRose::updateQuality() 
 {
     // 1 + 0 + 0 + 0 + b(510) == 511

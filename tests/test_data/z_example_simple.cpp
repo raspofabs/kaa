@@ -1,3 +1,9 @@
+// taken from the data-oriented-design git repo and annotated by me
+// Original work reproduced under:
+// The MIT License (MIT)
+// Copyright (c) 2018 Richard Fabian
+// https://github.com/raspofabs/dodbooksourcecode/blob/main/speculativewaste.cpp
+
 std::pair<int,int> Simple() {
 	int good = 0;
 	int taller = 0;
