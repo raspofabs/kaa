@@ -75,8 +75,20 @@ def SPC(node):
         l_paren, e_exp, r_paren = non_comment_children(node)
         return SPC_E(e_exp)
 
-    if node.type in ["field_expression", "subscript_expression", "call_expression"]:
+    if node.type in ["field_expression", "call_expression"]:
         return None
+
+    if node.type == "subscript_expression":
+        debug_node(node)
+        e_argument = node.child_by_field_name("argument")
+        e_index = node.child_by_field_name("indices")
+        return SPC_E(e_argument) + SPC_E(e_index)
+
+    if node.type == "subscript_argument_list":
+        debug_node(node)
+        s_open, e_index, s_close = non_comment_children(node)
+        assert e_index is not None
+        return SPC_E(e_index)
 
     if node.type == "binary_expression":
         e_left = node.child_by_field_name("left")

@@ -6,3 +6,6 @@ of C++ code, but perhaps it wil grow later.
 ## Todo
 
 - [ ] run on some larger code and find the broken bits
+    - tried the Gilded Rose kata, which was good as the complexity is over 200.
+    - [ ] other katas?
+    - [ ] other public git stuff?

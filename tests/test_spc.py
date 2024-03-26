@@ -53,6 +53,7 @@ def test_empty_node_debug(capsys):
 # Lots of small tests
 tiny_tests = [
         ("int i = 0;",None),
+        ("int func() {}",1),
         ("int func(a) /*c*/ {if(a){}}",2),
         ("int func(a) { return /*c*/ a ? b : c;}",2),
         ("{if(a){}}",2),
@@ -85,8 +86,9 @@ tiny_tests = [
         ("{for(/*c*/auto/*c*/ a/*c*/ :/*c*/ range/*c*/)/*c*/ {if(a){}}}",3),
         ("{for(auto a:b){} for(auto a:c){}}",4),
         ("{if (str == \"string\"){}}", 2),
+        ("{ return x[a > 3 ? 1 : 0];}",2),
+        ("{ return (a > 3 ? 1 : 0)[x];}",2),
         # TODO:
-        #("int f(int a) { return x[a > 3 ? 1 : 0];}",2),
         #("int f(int a) { return x(a > 3 ? 1 : 0);}",2),
         ]
 
