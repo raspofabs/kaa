@@ -85,17 +85,29 @@ def SPC(node):
         return None
 
     if node.type == "call_expression":
-        debug_node(node)
+        #debug_node(node)
         e_arguments = node.child_by_field_name("arguments")
         return SPC_E(e_arguments)
 
-    if node.type in ["declaration"]:
+    if node.type in ["expression_statement"]:
+        #debug_node(node)
+        e_expression, s_semi = non_comment_children(node)
+        return SPC_E(e_expression)
+
+    if node.type in ["assignment_expression"]:
         debug_node(node)
+        e_left = node.child_by_field_name("left")
+        s_op = node.child_by_field_name("operator")
+        e_right = node.child_by_field_name("right")
+        return SPC_E(e_left) + SPC_E(e_right)
+
+    if node.type in ["declaration"]:
+        #debug_node(node)
         e_declarator = node.child_by_field_name("declarator")
         return SPC(e_declarator)
 
     if node.type == "init_declarator":
-        debug_node(node)
+        #debug_node(node)
         e_value = node.child_by_field_name("value")
         return SPC(e_value)
 
@@ -111,7 +123,7 @@ def SPC(node):
         return SPC_E(e_argument) + SPC_E(e_index)
 
     if node.type == "subscript_argument_list":
-        debug_node(node)
+        #debug_node(node)
         s_open, e_index, s_close = non_comment_children(node)
         assert e_index is not None
         return SPC_E(e_index)

@@ -91,6 +91,8 @@ tiny_tests = [
         ("int f(int a) { return x(a > 3 ? 1 : 0);}",2),
         ("int f(int a) { return x(a > 3 ? 1 : 0, a < 7 ? 1 : 0);}",4),
         ("{ int b = a > 3 ? 1 : 0; return b; }",2),
+        ("{ int b = 0; b = a > 3 ? 1 : 0; return b; }",2),
+        ("{ int b = 2, c = 0; (a > 3 ? b : c) = 1; return b+c; }",2),
         ]
 
 @pytest.mark.parametrize("example, expected", tiny_tests)
