@@ -90,6 +90,7 @@ tiny_tests = [
         ("{ return (a > 3 ? 1 : 0)[x];}",2),
         ("int f(int a) { return x(a > 3 ? 1 : 0);}",2),
         ("int f(int a) { return x(a > 3 ? 1 : 0, a < 7 ? 1 : 0);}",4),
+        ("{ int b = a > 3 ? 1 : 0; return b; }",2),
         ]
 
 @pytest.mark.parametrize("example, expected", tiny_tests)
@@ -126,6 +127,8 @@ spc_tests = [
         ("simple.cpp",1),
         ("two_ifs.cpp",4),
         ("z_example_gilded_rose.cpp",211),
+        ("z_example_tennis1.cpp",20),
+        ("z_example_tennis2.cpp",139968000),
         ]
 
 @pytest.mark.parametrize("variant, expected", spc_tests)

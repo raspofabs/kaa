@@ -32,7 +32,7 @@ def SPC_S(node):
     return SPC(node) or 1
 
 def SPC(node):
-    if node.type == "comment":
+    if node.type in ["comment", "identifier", "number_literal", "string_literal"]:
         return None
 
     if node.type == "translation_unit":
@@ -89,8 +89,18 @@ def SPC(node):
         e_arguments = node.child_by_field_name("arguments")
         return SPC_E(e_arguments)
 
-    if node.type == "argument_list":
+    if node.type in ["declaration"]:
         debug_node(node)
+        e_declarator = node.child_by_field_name("declarator")
+        return SPC(e_declarator)
+
+    if node.type == "init_declarator":
+        debug_node(node)
+        e_value = node.child_by_field_name("value")
+        return SPC(e_value)
+
+    if node.type == "argument_list":
+        #debug_node(node)
         s_open, *e_arguments, s_close = non_comma(non_comment_children(node))
         return sum(map(SPC_E, e_arguments))
 
@@ -122,9 +132,6 @@ def SPC(node):
     #sum(1 for c in node.children if c.type in ["&&", "||"])
     if node.type == "update_expression":
         return 0
-
-    if node.type in ["declaration", "identifier", "number_literal", "string_literal"]:
-        return None
 
     # NPC(if (E1) S1 else S2) = NPC(E1) + NPC(S1) + NPC(S2)  // if statement: in case of no else, NPC(S2) = 1
     if node.type == "if_statement":
