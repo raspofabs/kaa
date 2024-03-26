@@ -44,8 +44,10 @@ def SPC(node):
         return SPC(body)
 
     if node.type == "return_statement":
-        r, expression, semicolon = non_comment_children(node)
-        return SPC_E(expression) + 1
+        r, *expression, semicolon = non_comment_children(node)
+        if len(expression) > 0:
+            return SPC_E(expression[0]) + 1
+        return 1
 
     if node.type == "case_statement":
         case, *tail = non_comment_children(node)

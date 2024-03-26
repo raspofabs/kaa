@@ -1,5 +1,8 @@
 from pathlib import Path
 
+import logging
+logger = logging.getLogger("kaa")
+
 def read_source(source_file: Path):
     if source_file.is_file():
         with open(source_file,"rb") as fh:
@@ -32,10 +35,29 @@ def render_func(f_def, source):
 
 
 def get_function_name(f_def, source):
+    from kaa.sitter_util import debug_node
     source_as_text = source.decode("utf8")
     lines = source_as_text.split("\n")
-    name_node = f_def.child_by_field_name("declarator")
-    name_node = name_node.child_by_field_name("declarator")
+    name_declaration = f_def.child_by_field_name("declarator")
+    if name_declaration is None:
+        logger.error(f"Unable to find name declaration for function {f_def}")
+        debug_node(f_def)
+        return "none"
+    name_node = name_declaration.child_by_field_name("declarator")
+    if name_node is None:
+        #logger.error(f"Unable to find name node for function {f_def}")
+        #debug_node(name_declaration)
+        best_guess = [node for node in name_declaration.children if "declarator" in node.type]
+        if len(best_guess) > 0:
+            name_node = best_guess[0]
+            #logger.warning(f"Found something: {name_node}.")
+            #debug_node(name_node)
+            better = name_node.child_by_field_name("declarator")
+            if better is not None:
+                #logger.warning(f"Found something better: {better}.")
+                name_node = better
+    #if name_node is None:
+        #"<UNKNOWN>"
     start_line = name_node.start_point[0]
     end_line = name_node.end_point[0]
     assert start_line == end_line

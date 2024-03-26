@@ -34,17 +34,26 @@ def test_get_function_with_python(tree_simple, tree_multiple):
     assert isinstance(functions, list)
     assert len(functions) == 0
 
+name_tests = [
+        ("simple.cpp","hello"),
+        ("main.cpp","main"),
+        ("one_for.cpp","one_for"),
+        ("two_ifs.cpp","two_ifs"),
+        ("operator.cpp","operator<<"),
+        ]
 
-def test_get_function_name():
+@pytest.mark.parametrize("variant, expected", name_tests)
+def test_get_function_name(variant, expected):
     from kaa import get_functions, get_function_name
     from kaa.sitter_util import debug_node
-    source, tree = get_tree("simple.cpp")
+    source, tree = get_tree(variant)
     functions = get_functions(tree)
     f_def = functions[0]
+    #debug_node(f_def)
     f_name = get_function_name(f_def, source)
-    if f_name != "hello":
+    if f_name != expected:
         debug_node(f_def)
-    assert f_name == "hello"
+    assert f_name == expected
 
 
 def test_render_func(capsys):

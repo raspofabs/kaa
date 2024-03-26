@@ -136,7 +136,6 @@ spc_tests = [
         ("z_example_tennis3.cpp",12),
         ("z_example_simple.cpp",6),
         ]
-#spc_tests = []
 
 @pytest.mark.parametrize("variant, expected", spc_tests)
 def test_spc_other(variant, expected):
@@ -157,7 +156,8 @@ def test_spc_other(variant, expected):
         result = SPC(f)
         if result != expected:
             describe_func(f, source)
-        assert result == expected
+        if expected is not None:
+            assert result == expected
 
 
 

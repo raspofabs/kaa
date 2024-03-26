@@ -1,4 +1,4 @@
-int one_if(int a) {
+int two_ifs(int a) {
     int b = 2
 
     if (a > 3) {

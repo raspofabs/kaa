@@ -15,8 +15,15 @@ def run(source_path: Path, verbose: bool):
         #print(f"N: {node}")
     functions = get_functions(tree)
     for f in functions:
-        if verbose:
-            render_func(f, source)
-            describe_func(f, source)
-        else:
-            print(f"SPC of {get_function_name(f, source)}: {SPC(f)}")
+        try:
+            if verbose:
+                render_func(f, source)
+                describe_func(f, source)
+            else:
+                print(f"SPC of {get_function_name(f, source)}: {SPC(f)}")
+        except AttributeError:
+            print(f"Error when parsing {source_path}")
+            raise
+        except ValueError:
+            print(f"Error when parsing {source_path}")
+            raise
