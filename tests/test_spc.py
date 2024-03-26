@@ -134,6 +134,7 @@ spc_tests = [
         ("z_example_tennis1.cpp",20),
         ("z_example_tennis2.cpp",139968000),
         ("z_example_tennis3.cpp",12),
+        ("z_example_simple.cpp",6),
         ]
 #spc_tests = []
 

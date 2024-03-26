@@ -46,13 +46,11 @@ def SPC(node):
         raise ValueError("SPC only works on functions and methods.")
 
     if node.type == "function_definition": # calculate with the compound statement
-        #debug_node(node)
         body = node.child_by_field_name("body")
         assert body.type == "compound_statement"
         return SPC(body)
 
     if node.type == "return_statement":
-        #debug_node(node)
         r, expression, semicolon = non_comment_children(node)
         return SPC_E(expression) + 1
 
@@ -74,17 +72,14 @@ def SPC(node):
                 return 0
 
     if node.type == "condition_clause":
-        #debug_node(node)
         e_exp = node.child_by_field_name("value")
         return SPC(e_exp)
 
     if node.type == "else_clause":
-        #debug_node(node)
         s_else, s_statement = non_comment_children(node)
         return SPC(s_statement)
 
     if node.type == "parenthesized_expression":
-        #debug_node(node)
         l_paren, e_exp, r_paren = non_comment_children(node)
         return SPC_E(e_exp)
 
@@ -92,50 +87,41 @@ def SPC(node):
         return None
 
     if node.type == "call_expression":
-        #debug_node(node)
         e_arguments = node.child_by_field_name("arguments")
         return SPC_E(e_arguments)
 
     if node.type in ["expression_statement"]:
-        #debug_node(node)
         e_expression, s_semi = non_comment_children(node)
         return 1 + SPC_E(e_expression)
 
     if node.type in ["assignment_expression"]:
-        #debug_node(node)
         e_left = node.child_by_field_name("left")
         s_op = node.child_by_field_name("operator")
         e_right = node.child_by_field_name("right")
         return SPC_E(e_left) + SPC_E(e_right)
 
     if node.type in ["declaration"]:
-        #debug_node(node)
         e_declarator = node.child_by_field_name("declarator")
         return 1 + SPC_E(e_declarator)
 
     if node.type == "init_declarator":
-        #debug_node(node)
         e_value = node.child_by_field_name("value")
         return SPC(e_value)
 
     if node.type == "argument_list":
-        #debug_node(node)
         s_open, *e_arguments, s_close = non_comma(non_comment_children(node))
         return SPC_E_ARGS(e_arguments)
 
     if node.type == "initializer_list":
-        #debug_node(node)
         s_open, *e_arguments, s_close = non_comma(non_comment_children(node))
         return SPC_E_ARGS(e_arguments)
 
     if node.type == "subscript_expression":
-        #debug_node(node)
         e_argument = node.child_by_field_name("argument")
         e_index = node.child_by_field_name("indices")
         return SPC_E(e_argument) + SPC_E(e_index)
 
     if node.type == "subscript_argument_list":
-        #debug_node(node)
         s_open, e_index, s_close = non_comment_children(node)
         assert e_index is not None
         return SPC_E(e_index)
@@ -206,7 +192,6 @@ def SPC(node):
 
     # NPC(S1; S2) = NPC(S1) * NPC(S2)  // sequential statements
     if node.type == "compound_statement":
-        #debug_node(node)
         total = 1
         for child in node.children:
             total *= SPC_S(child)
