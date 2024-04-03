@@ -14,7 +14,9 @@ def non_comment_children(node):
     return non_comment(node.children)
 
 def SPC_E(node):
-    return SPC(node) or 0
+    if node is not None:
+        return SPC(node) or 0
+    return 0
 
 def OPCOST(operator_node):
     if operator_node.type in ["&&", "||"]:
@@ -22,7 +24,9 @@ def OPCOST(operator_node):
     return 0
 
 def SPC_S(node):
-    return SPC(node) or 1
+    if node is not None:
+        return SPC(node) or 1
+    return 1
 
 def SPC_E_ARGS(nodes):
     a_paths = map(lambda x:SPC_E(x)+1, nodes)
@@ -86,8 +90,10 @@ def SPC(node):
         return SPC_E(e_arguments)
 
     if node.type in ["expression_statement"]:
-        e_expression, s_semi = non_comment_children(node)
-        return 1 + SPC_E(e_expression)
+        *e_expression, s_semi = non_comment_children(node)
+        if len(e_expression):
+            return 1 + SPC_E(e_expression[0])
+        return 1
 
     if node.type in ["assignment_expression"]:
         e_left = node.child_by_field_name("left")
@@ -179,7 +185,7 @@ def SPC(node):
         s_condition = node.child_by_field_name("condition")
         s_update = node.child_by_field_name("update")
         body = node.child_by_field_name("body")
-        return 1 + (SPC_E(s_initializer)-1) + SPC_E(s_condition) + SPC_E(s_update) + SPC(body)
+        return 1 + (SPC_S(s_initializer)-1) + SPC_E(s_condition) + SPC_E(s_update) + SPC(body)
 
     if node.type == "for_range_loop":
         body = node.child_by_field_name("body")

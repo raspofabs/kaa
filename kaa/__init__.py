@@ -45,19 +45,12 @@ def get_function_name(f_def, source):
         return "none"
     name_node = name_declaration.child_by_field_name("declarator")
     if name_node is None:
-        #logger.error(f"Unable to find name node for function {f_def}")
-        #debug_node(name_declaration)
         best_guess = [node for node in name_declaration.children if "declarator" in node.type]
         if len(best_guess) > 0:
             name_node = best_guess[0]
-            #logger.warning(f"Found something: {name_node}.")
-            #debug_node(name_node)
             better = name_node.child_by_field_name("declarator")
             if better is not None:
-                #logger.warning(f"Found something better: {better}.")
                 name_node = better
-    #if name_node is None:
-        #"<UNKNOWN>"
     start_line = name_node.start_point[0]
     end_line = name_node.end_point[0]
     assert start_line == end_line

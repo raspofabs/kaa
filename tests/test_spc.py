@@ -95,6 +95,8 @@ tiny_tests = [
         ("{ int b = 2, c = 0; (a > 3 ? b : c) = 1; return b+c; }",2),
         ("{ std::cout << 1; }",1),
         ("{ std::cout << 1 << std::endl; }",1),
+        ("{;}",1),
+        ("{ for (; i < blocklen; ++i) {} }",2),
         ]
 
 @pytest.mark.parametrize("example, expected", tiny_tests)
@@ -153,11 +155,13 @@ def test_spc_other(variant, expected):
 
     functions = get_functions(tree)
     for f in functions:
-        result = SPC(f)
-        if result != expected:
+        try:
+            result = SPC(f)
+            if expected is not None:
+                if result != expected:
+                    describe_func(f, source)
+                    assert result == expected
+        except:
+            print("Error in parsing...")
             describe_func(f, source)
-        if expected is not None:
-            assert result == expected
-
-
-
+            raise
