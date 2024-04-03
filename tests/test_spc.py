@@ -51,11 +51,17 @@ def test_empty_node_debug(capsys):
 
 
 # Lots of small tests
-tiny_tests = [
-        ("int i = 0;",1),
+function_tests = [
         ("int func() {}",1),
         ("int func(a) /*c*/ {if(a){}}",2),
         ("int func(a) { return /*c*/ a ? b : c;}",2),
+        ("my_type::operator+ (my_type &other){ return my_type(other.val + val); }",1),
+        #("my_type::operator other_type(){ return other_type(m_myValue); }",1),
+        #("outer_namespace::my_type::operator other_type(){ return other_type(m_myValue ? 1 : 0); }",2),
+        ]
+# Lots of small tests
+tiny_tests = function_tests + [
+        ("int i = 0;",1),
         ("{if(a){}}",2),
         ("{if(/*c*/ a||b){}}",3),
         ("{if(a){}else{}}",2),
@@ -116,6 +122,26 @@ def test_spc_tiny(capsys, example, expected):
         print(captured.out)
     assert result == expected
 
+@pytest.mark.parametrize("example, expected", tiny_tests)
+def test_get_function_name(capsys, example, expected):
+    from kaa import get_functions, get_function_name
+    from kaa.spc import debug_node
+    from kaa.parser import get_parser_cpp
+    from kaa.spc import SPC, describe_func
+
+    parser = get_parser_cpp()
+    source = bytes(example,"utf8")
+    tree = parser.parse(source)
+    functions = get_functions(tree)
+    for f in functions:
+        try:
+            name = get_function_name(f, source)
+        except:
+            print("Error in parsing...")
+            debug_node(f)
+            describe_func(f, source)
+            raise
+
 spc_tests = [
         ("classes_one_if.cpp",2),
         ("complex.cpp",6),
@@ -142,7 +168,7 @@ spc_tests = [
 @pytest.mark.parametrize("variant, expected", spc_tests)
 def test_spc_other(variant, expected):
     source, tree = get_tree(variant)
-    from kaa import get_functions
+    from kaa import get_functions, get_function_name
     from kaa.spc import SPC, describe_func
 
     try:
@@ -161,6 +187,7 @@ def test_spc_other(variant, expected):
                 if result != expected:
                     describe_func(f, source)
                     assert result == expected
+            name = get_function_name(f, source)
         except:
             print("Error in parsing...")
             describe_func(f, source)
