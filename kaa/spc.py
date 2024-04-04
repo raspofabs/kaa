@@ -36,16 +36,20 @@ def SPC_E_ARGS(nodes):
     return total - 1
 
 def SPC(node):
-    if node.type in ["comment", "array_declarator", "qualified_identifier", "identifier", "number_literal", "string_literal"]:
+    if node.type in ["cast_expression", "comment", "array_declarator", "qualified_identifier", "identifier", "number_literal", "string_literal"]:
         return None
 
     if node.type == "translation_unit":
         raise ValueError("SPC only works on functions and methods.")
 
     if node.type == "function_definition": # calculate with the compound statement
+        #debug_node(node)
         body = node.child_by_field_name("body")
-        assert body.type == "compound_statement"
-        return SPC(body)
+        if body is not None:
+            assert body.type == "compound_statement"
+            return SPC(body)
+        else:
+            return 1
 
     if node.type == "return_statement":
         r, *expression, semicolon = non_comment_children(node)
@@ -79,8 +83,11 @@ def SPC(node):
         return SPC(s_statement)
 
     if node.type == "parenthesized_expression":
-        l_paren, e_exp, r_paren = non_comment_children(node)
-        return SPC_E(e_exp)
+        l_paren, *e_exp, r_paren = non_comment_children(node)
+        if len(e_exp) == 1:
+            return SPC_E(e_exp[0])
+        else:
+            return None
 
     if node.type in ["field_expression"]:
         return None
@@ -123,9 +130,12 @@ def SPC(node):
         return SPC_E(e_argument) + SPC_E(e_index)
 
     if node.type == "subscript_argument_list":
-        s_open, e_index, s_close = non_comment_children(node)
-        assert e_index is not None
-        return SPC_E(e_index)
+        debug_node(node)
+        s_open, *e_index, s_close = non_comment_children(node)
+        if len(e_index) == 1:
+            return SPC_E(e_index[0])
+        else:
+            return 0
 
     if node.type == "binary_expression":
         e_left = node.child_by_field_name("left")
@@ -203,12 +213,16 @@ def SPC(node):
 
 def describe_node(node, indent):
     if node.type != "comment":
-        print(f"{indent}{node.type} = {SPC(node)}")
+        if node.type == "ERROR":
+            print(f"{indent} ERROR @ {node.start_point}-{node.end_point}")
+        else:
+            print(f"{indent}{node.type} = {SPC(node)}")
     for child in node.children:
         describe_node(child, indent + "> ")
 
 def describe_func(f_def, source):
-    source_as_text = source.decode("utf8")
+    from kaa import get_source_as_text
+    source_as_text = get_source_as_text(source)
     lines = source_as_text.split("\n")
     print(f"Function: {f_def}")
     for child in f_def.children:

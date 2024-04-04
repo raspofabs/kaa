@@ -4,4 +4,5 @@
 #find kaa/ | entr kaa_spc tests/test_data/one_if.cpp
 #find kaa/ | entr kaa_spc tests/test_data/complex.cpp
 #find kaa/ | entr kaa_spc tests/test_data/multiple.cpp
-find kaa/ | entr kaa_spc tests/test_data/main.cpp
+#find kaa/ | entr kaa_spc tests/test_data/main.cpp
+find kaa/ | entr ./check_all_external.sh

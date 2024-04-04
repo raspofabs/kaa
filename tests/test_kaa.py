@@ -40,6 +40,7 @@ name_tests = [
         ("one_for.cpp","one_for"),
         ("two_ifs.cpp","two_ifs"),
         ("operator.cpp","operator<<"),
+        ("operator_cast.cpp","mytype::operator other_type"),
         ]
 
 @pytest.mark.parametrize("variant, expected", name_tests)

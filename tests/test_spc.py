@@ -56,8 +56,16 @@ function_tests = [
         ("int func(a) /*c*/ {if(a){}}",2),
         ("int func(a) { return /*c*/ a ? b : c;}",2),
         ("my_type::operator+ (my_type &other){ return my_type(other.val + val); }",1),
-        #("my_type::operator other_type(){ return other_type(m_myValue); }",1),
-        #("outer_namespace::my_type::operator other_type(){ return other_type(m_myValue ? 1 : 0); }",2),
+        ("my_namespace::their_type::sub_type other_namespace::func() {}",1),
+        ("my_type::operator other_type(){ return other_type(m_myValue); }",1),
+        ("outer_namespace::my_type::operator other_type(){ return other_type(m_myValue ? 1 : 0); }",2),
+        ("RANDOM_DEFINE namespace A { int func() { return 0; } }",1),
+        ("void f() { auto u = ((unsigned)m << 2); }",1),
+        ("void f() { auto u = (unsigned(m) << 2); }",1),
+        ("Ctor(const Ctor&);",1),
+        ("Ctor(const Ctor&) = delete;",1),
+        ("Ctor(const Ctor&) = default;",1),
+
         ]
 # Lots of small tests
 tiny_tests = function_tests + [

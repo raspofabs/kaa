@@ -10,6 +10,11 @@ def read_source(source_file: Path):
     return None
 
 
+def get_source_as_text(source_bytes):
+    text = source_bytes.decode("utf8", errors="ignore")
+    return text
+
+
 def parse_source_to_tree(source: bytes):
     from kaa.parser import get_parser_cpp
     parser = get_parser_cpp()
@@ -36,14 +41,25 @@ def render_func(f_def, source):
 
 def get_function_name(f_def, source):
     from kaa.sitter_util import debug_node
-    source_as_text = source.decode("utf8")
+    source_as_text = get_source_as_text(source)
     lines = source_as_text.split("\n")
     name_declaration = f_def.child_by_field_name("declarator")
     if name_declaration is None:
         logger.error(f"Unable to find name declaration for function {f_def}")
         debug_node(f_def)
         return "none"
+    if len(name_declaration.children) == 0:
+        return "ERROR"
     name_node = name_declaration.child_by_field_name("declarator")
+    if name_node is None:
+        #print(f"No name_node... {len(name_declaration.children)}")
+        #debug_node(name_declaration)
+        for node in name_declaration.children:
+            if node.type in ["operator_cast", "qualified_identifier"]:
+                name_node = node
+                break
+            print(f"Child ({node.type}): {node}")
+
     if name_node is None:
         best_guess = [node for node in name_declaration.children if "declarator" in node.type]
         if len(best_guess) > 0:

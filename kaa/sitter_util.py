@@ -41,7 +41,7 @@ def get_language_cpp():
 
 
 def debug_node(node):
-    print(f"Node:{node.type}/{node.id}/{node.grammar_name} -> {node.sexp()}")
+    print(f"Node:{node.type}/{node.grammar_name}@{node.start_point}:{node.end_point} -> {node.sexp()}")
     cursor = node.walk()
     if cursor.goto_first_child():
         more = True
